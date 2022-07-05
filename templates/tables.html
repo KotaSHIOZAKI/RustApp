@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>予約シミュレーション</h1>
+    <h2>テーブル</h2>
+    <p>
+        イベントテーブル（Events）<br>
+        <table border="2">
+            <tr>
+                <th>id</th>
+                <th>name（名称）</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>プログラミング教室</td>
+            </tr>
+        </table>
+        時刻テーブル（Time Table）<br>
+        <table border="2">
+            <tr>
+                <th>id</th>
+                <th>event_id</th>
+                <th>start_date（開始日）</th>
+                <th>start_time（開始時刻）</th>
+                <th>end_time（終了時刻）</th>
+                <th>limit（人数制限）</th>
+                <th>reserve_flag（予約フラグ）</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>1</td>
+                <td>07/18</td>
+                <td>09:00</td>
+                <td>12:00</td>
+                <td>30</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>1</td>
+                <td>07/18</td>
+                <td>12:30</td>
+                <td>15:30</td>
+                <td>30</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>1</td>
+                <td>07/18</td>
+                <td>16:00</td>
+                <td>19:00</td>
+                <td>30</td>
+                <td>1</td>
+            </tr>
+        </table>
+        予約テーブル（Reserves）<br>
+        <table border="2">
+            <tr>
+                <th>id</th>
+                <th>user_id（ユーザーID）</th>
+                <th>time_id（時刻ID）</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>1</td>
+                <td>1</td>
+            </tr>
+        </table>
+    </p>
+</body>
+</html>
