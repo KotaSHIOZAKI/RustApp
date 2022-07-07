@@ -7,6 +7,17 @@
     <title>Document</title>
 </head>
 <body>
-    Hello world!
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>名称</th>
+        </tr>
+        {% for entry in entries %}
+        <tr>
+            <td>{{ entry.id }}</td>
+            <td>{{ entry.name }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
