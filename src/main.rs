@@ -1,3 +1,4 @@
+use actix_files as fs;
 use actix_web::{get, /*http::header, post,*/ web, App, HttpResponse, HttpServer, ResponseError};
 use askama::Template;
 use r2d2::Pool;
@@ -7,15 +8,29 @@ use rusqlite::params;
 use thiserror::Error;
 // mod tables;
 
+struct UserEntry {
+    id: u32
+}
 struct EventEntry {
     id: u32,
     name: String,
 }
+struct TimeEntry {
+    id: u32,
+    event_id: u32,
+    limit: u32,
+}
+struct ReserveEntry {
+    id: u32,
+    user_id: u32,
+    time_id: u32,
+}
 
 #[derive(Template)]
-#[template(path = "index.html")]
+#[template(path = "boot.html")]
 struct IndexTemplate {
-    entries: Vec<EventEntry>
+    // entries: Vec<EventEntry>,
+    // times: Vec<TimeEntry>,
 }
 
 #[derive(Template)]
@@ -54,13 +69,27 @@ async fn index(db: web::Data<Pool<SqliteConnectionManager>>) -> Result<HttpRespo
         entries.push(row?);
     }
     if entries.len() <= 0 {
-        conn.execute("INSERT INTO events (name) VALUES (?)", ["学習塾"])?;
-        conn.execute("INSERT INTO events (name) VALUES (?)", ["料理教室"])?;
-        conn.execute("INSERT INTO events (name) VALUES (?)", ["ヨガ教室"])?;
-        conn.execute("INSERT INTO events (name) VALUES (?)", ["プログラミング教室"])?;
+        conn.execute("INSERT INTO events (name) VALUES (?)", params!["学習塾"])?;
+        conn.execute("INSERT INTO events (name) VALUES (?)", params!["料理教室"])?;
+        conn.execute("INSERT INTO events (name) VALUES (?)", params!["ヨガ教室"])?;
+        conn.execute("INSERT INTO events (name) VALUES (?)", params!["プログラミング教室"])?;
+
+        conn.execute("INSERT INTO timestamps (event_id, num_limit) VALUES (?1, ?2)", params![1, 30])?;
     }
 
-    let html = IndexTemplate {entries};
+    statement = conn.prepare("SELECT * FROM timestamps")?;
+    let rows = statement.query_map(params![], |row| {
+        let id = row.get(0)?;
+        let event_id = row.get(1)?;
+        let limit = row.get(2)?;
+        Ok(TimeEntry{id, event_id, limit})
+    })?;
+    let mut times = Vec::new();
+    for row in rows {
+        times.push(row?);
+    }
+
+    let html = IndexTemplate {/*entries, times*/};
     let response_body = html.render()?;
 
     Ok(HttpResponse::Ok().content_type("text/html").body(response_body))
@@ -89,11 +118,30 @@ async fn main() -> Result<(), actix_web::Error> {
         )",
         params![],
     ).expect("Failed to create a table `events`.");
+    //時刻テーブル
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS timestamps (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_id INTEGER NOT NULL,
+            num_limit INTEGER NOT NULL
+        )",
+        params![],
+    ).expect("Failed to create a table `timestamps`.");
+    //予約テーブル
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS reserves (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            time_id INTEGER NOT NULL
+        )",
+        params![],
+    ).expect("Failed to create a table `reserves`.");
 
     HttpServer::new(move || {
         App::new()
         .service(index)
         .service(another)
+        .service(fs::Files::new("/static", "./static").show_files_listing())
         .data(pool.clone())
     }).bind("0.0.0.0:8080")?.run().await?;
     

@@ -19,5 +19,19 @@
         </tr>
         {% endfor %}
     </table>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>イベントID</th>
+            <th>人数制限</th>
+        </tr>
+        {% for entry in times %}
+        <tr>
+            <td>{{ entry.id }}</td>
+            <td>{{ entry.event_id }}</td>
+            <td>{{ entry.limit }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
